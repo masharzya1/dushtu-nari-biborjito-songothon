@@ -21,6 +21,8 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
         .glow-point { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 15px var(--accent); animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .section { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -42,7 +44,7 @@
                 <div class="sidebar-item p-4 rounded-xl cursor-pointer flex items-center gap-4" data-section="members-sec"><i class="fas fa-users"></i> Members</div>
                 <div class="sidebar-item p-4 rounded-xl cursor-pointer flex items-center gap-4" data-section="notices-sec"><i class="fas fa-bullhorn"></i> Notices</div>
                 <div class="sidebar-item p-4 rounded-xl cursor-pointer flex items-center gap-4 relative" data-section="messages-sec"><i class="fas fa-envelope"></i> Inbox <span id="msg-count" class="hidden absolute right-4 w-5 h-5 bg-indigo-600 rounded-full text-[10px] flex items-center justify-center font-bold">0</span></div>
-                <div class="sidebar-item p-4 rounded-xl cursor-pointer flex items-center gap-4" data-section="chat-sec"><i class="fas fa-comments"></i> Admin Chat</div>
+                <div class="sidebar-item p-4 rounded-xl cursor-pointer flex items-center gap-4 relative" data-section="support-sec"><i class="fas fa-headset"></i> Support <span id="support-count" class="hidden absolute right-4 w-5 h-5 bg-emerald-600 rounded-full text-[10px] flex items-center justify-center font-bold">0</span></div>
                 <div class="sidebar-item p-4 rounded-xl cursor-pointer flex items-center gap-4" data-section="admins-sec"><i class="fas fa-user-shield"></i> Permissions</div>
                 <div class="sidebar-item p-4 rounded-xl cursor-pointer flex items-center gap-4" data-section="settings-sec"><i class="fas fa-cog"></i> Settings</div>
             </nav>
@@ -135,6 +137,38 @@
                     </div>
                 </div>
 
+                <!-- Notices Section -->
+                <div id="notices-sec" class="section hidden space-y-8">
+                    <div class="flex justify-between items-center bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800">
+                        <h3 class="text-xl font-bold">Public Notices</h3>
+                        <button onclick="window.bulkDelete('notices')" class="bg-red-500/10 text-red-500 px-6 py-3 rounded-xl font-bold hover:bg-red-500 transition-all"><i class="fas fa-trash-alt mr-2"></i> Delete Selected</button>
+                    </div>
+                    <div class="grid lg:grid-cols-3 gap-8">
+                        <div class="glass p-8 rounded-3xl border border-zinc-900/50 h-fit">
+                            <h3 class="text-xl font-bold mb-6">Publish New Notice</h3>
+                            <form id="add-notice-form" class="space-y-4">
+                                <div id="notice-upload-trigger" class="h-40 border-2 border-dashed border-zinc-800 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 transition-all">
+                                    <i class="fas fa-image text-3xl text-zinc-700"></i>
+                                    <p class="text-xs text-zinc-600 mt-2">Notice Banner (Optional)</p>
+                                    <input type="file" id="notice-file" hidden accept="image/*">
+                                </div>
+                                <div id="notice-preview-box" class="hidden relative"><img id="notice-img-tag" class="w-full h-40 object-cover rounded-2xl"><button type="button" id="notice-remove-btn" class="absolute -top-2 -right-2 bg-red-500 w-8 h-8 rounded-full"><i class="fas fa-times"></i></button></div>
+                                <input type="hidden" id="notice-url">
+                                <input type="text" id="notice-title" placeholder="Notice Headline" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none" required>
+                                <select id="notice-category" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none" required>
+                                    <option value="general">General (সাধারণ)</option>
+                                    <option value="urgent">Urgent (জরুরী)</option>
+                                    <option value="warning">Warning (সতর্কতা)</option>
+                                    <option value="event">Event (ইভেন্ট)</option>
+                                </select>
+                                <textarea id="notice-content" placeholder="Full Notice Content" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none h-32 resize-none" required></textarea>
+                                <button class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all">Post Notice</button>
+                            </form>
+                        </div>
+                        <div id="notice-list" class="lg:col-span-2 space-y-4"></div>
+                    </div>
+                </div>
+
                 <!-- Inbox Section -->
                 <div id="messages-sec" class="section hidden space-y-6">
                     <div class="flex justify-between items-center glass p-6 rounded-2xl border border-zinc-900/50">
@@ -147,16 +181,39 @@
                     <div id="inbox-list" class="space-y-4"></div>
                 </div>
 
-                <!-- Admin Chat Section -->
-                <div id="chat-sec" class="section hidden h-[70vh] flex flex-col glass rounded-3xl border border-zinc-900/50 overflow-hidden">
-                    <div class="p-6 border-b border-zinc-900 flex items-center justify-between bg-zinc-900/20">
-                        <h3 class="font-bold">Internal Admin Comms</h3>
-                        <span class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest"><i class="fas fa-circle text-[6px] mr-1"></i> Encrypted Channel</span>
+                <!-- Support Section -->
+                <div id="support-sec" class="section hidden h-[75vh] glass rounded-3xl border border-zinc-900/50 overflow-hidden flex">
+                    <!-- Sessions List -->
+                    <div class="w-80 border-r border-zinc-900 flex flex-col bg-zinc-900/10">
+                        <div class="p-6 border-b border-zinc-900 font-bold flex justify-between items-center">
+                            <span>Active Chats</span>
+                            <span class="text-[10px] bg-indigo-600 px-2 py-0.5 rounded-full" id="active-session-count">0</span>
+                        </div>
+                        <div id="support-sessions-list" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
+                            <div class="p-8 text-center text-zinc-600 text-xs">No active sessions</div>
+                        </div>
                     </div>
-                    <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar"></div>
-                    <div class="p-6 border-t border-zinc-900 bg-zinc-900/20 flex gap-4">
-                        <input type="text" id="chat-input" placeholder="Type your message..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-6 py-4 outline-none">
-                        <button id="chat-send" class="px-8 bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all"><i class="fas fa-paper-plane"></i></button>
+                    
+                    <!-- Active Chat Area -->
+                    <div id="support-chat-area" class="flex-1 flex flex-col hidden">
+                        <div class="p-6 border-b border-zinc-900 flex items-center justify-between bg-zinc-900/20">
+                            <div>
+                                <h3 id="support-chat-name" class="font-bold">Select a chat</h3>
+                                <p id="support-chat-phone" class="text-[10px] text-zinc-500 font-bold uppercase"></p>
+                            </div>
+                            <button onclick="window.closeSupportChat()" class="text-zinc-500 hover:text-white"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div id="support-chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-black/20"></div>
+                        <div class="p-6 border-t border-zinc-900 bg-zinc-900/20 flex gap-4">
+                            <input type="text" id="support-chat-input" placeholder="Reply to user..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-6 py-4 outline-none">
+                            <button id="support-chat-send" class="px-8 bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Placeholder -->
+                    <div id="support-chat-placeholder" class="flex-1 flex flex-col items-center justify-center text-zinc-700">
+                        <i class="fas fa-comments text-5xl mb-4"></i>
+                        <p class="font-bold uppercase tracking-widest text-[10px]">Select a session to begin</p>
                     </div>
                 </div>
 
@@ -211,7 +268,7 @@
         </div>
     </div>
 
-    <!-- Modals (Optimization / Edit) -->
+    <!-- Compression Modal -->
     <div id="compression-modal" class="hidden fixed inset-0 z-[120] bg-black/90 flex items-center justify-center p-6 text-center">
         <div class="glass p-10 rounded-3xl border-zinc-800 max-w-sm w-full">
             <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse"><i class="fas fa-bolt text-indigo-500"></i></div>
@@ -253,26 +310,165 @@
             Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true, background: '#111', color: '#fff' }).fire({ icon, title });
         };
 
+        let activeSupportSession = null;
+        let supportMessagesUnsub = null;
+
+        // Admin Online Status Management
+        async function setAdminOnline() {
+            if (currentAdmin) {
+                try {
+                    await setDoc(doc(db, 'system', 'admin_status'), { 
+                        status: 'online', 
+                        lastActive: serverTimestamp(),
+                        email: currentAdmin.email,
+                        name: currentAdmin.displayName
+                    });
+                } catch(e) { console.error("Status update error", e); }
+            }
+        }
+
+        window.onbeforeunload = () => {
+            if (currentAdmin) {
+                updateDoc(doc(db, 'system', 'admin_status'), { status: 'offline' });
+            }
+        };
+
+        // Support System Logic
+        function setupSupportListeners() {
+            onSnapshot(query(collection(db, 'support_sessions'), orderBy('lastMessageTime', 'desc')), (snap) => {
+                const list = document.getElementById('support-sessions-list');
+                const badge = document.getElementById('support-count');
+                const activeCount = document.getElementById('active-session-count');
+                
+                list.innerHTML = '';
+                let unreadTotal = 0;
+                let sessionCount = 0;
+
+                snap.forEach(d => {
+                    const s = d.data();
+                    sessionCount++;
+                    if (!s.adminRead) unreadTotal++;
+                    
+                    const isSelected = activeSupportSession === d.id;
+                    const time = s.lastMessageTime?.toDate ? s.lastMessageTime.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
+
+                    list.innerHTML += `
+                        <div onclick="window.openSupportChat('${d.id}')" class="p-4 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-indigo-600 text-white' : 'bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-900'} relative">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-sm truncate pr-4">${s.userName}</h4>
+                                <span class="text-[9px] opacity-50">${time}</span>
+                            </div>
+                            <p class="text-[10px] opacity-70 truncate">${s.lastMessage}</p>
+                            ${!s.adminRead ? '<div class="absolute right-4 bottom-4 w-2 h-2 bg-emerald-500 rounded-full glow-point"></div>' : ''}
+                        </div>`;
+                    
+                    if (!s.adminRead && activeSupportSession !== d.id && snap.docChanges().some(c => c.doc.id === d.id && c.type === 'modified')) {
+                        if (document.getElementById('set-buzzer').checked) buzzer.play().catch(() => {});
+                    }
+                });
+
+                activeCount.innerText = sessionCount;
+                if (unreadTotal > 0) {
+                    badge.innerText = unreadTotal;
+                    badge.classList.remove('hidden');
+                } else badge.classList.add('hidden');
+            }, (err) => console.error("Support listener error", err));
+        }
+
+        window.openSupportChat = async (id) => {
+            activeSupportSession = id;
+            document.getElementById('support-chat-placeholder').classList.add('hidden');
+            document.getElementById('support-chat-area').classList.remove('hidden');
+            
+            const sSnap = await getDoc(doc(db, 'support_sessions', id));
+            const s = sSnap.data();
+            document.getElementById('support-chat-name').innerText = s.userName;
+            document.getElementById('support-chat-phone').innerText = s.userPhone;
+
+            await updateDoc(doc(db, 'support_sessions', id), { adminRead: true });
+
+            if (supportMessagesUnsub) supportMessagesUnsub();
+            const q = query(collection(db, `support_sessions/${id}/messages`), orderBy('time', 'asc'));
+            supportMessagesUnsub = onSnapshot(q, (snap) => {
+                const box = document.getElementById('support-chat-messages');
+                box.innerHTML = '';
+                snap.forEach(d => {
+                    const m = d.data();
+                    const isMe = m.sender === 'admin';
+                    const time = m.time?.toDate ? m.time.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
+                    
+                    box.innerHTML += `
+                        <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                            <div class="max-w-[85%] ${isMe ? 'bg-emerald-600' : 'bg-zinc-800'} p-3 px-4 rounded-2xl relative group">
+                                <p class="text-[9px] font-bold opacity-50 mb-1 uppercase tracking-widest">${isMe ? 'Admin' : s.userName}</p>
+                                <p class="text-sm">${m.text}</p>
+                                <p class="text-[8px] opacity-30 mt-1 text-right">${time}</p>
+                            </div>
+                        </div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        };
+
+        window.closeSupportChat = () => {
+            activeSupportSession = null;
+            if (supportMessagesUnsub) supportMessagesUnsub();
+            document.getElementById('support-chat-area').classList.add('hidden');
+            document.getElementById('support-chat-placeholder').classList.remove('hidden');
+        };
+
+        document.getElementById('support-chat-send').onclick = async () => {
+            const inp = document.getElementById('support-chat-input');
+            const text = inp.value.trim();
+            if (!text || !activeSupportSession) return;
+            
+            inp.value = '';
+            try {
+                await addDoc(collection(db, `support_sessions/${activeSupportSession}/messages`), {
+                    text: text,
+                    sender: 'admin',
+                    time: serverTimestamp()
+                });
+                
+                await updateDoc(doc(db, 'support_sessions', activeSupportSession), {
+                    lastMessage: text,
+                    lastMessageTime: serverTimestamp(),
+                    userRead: false
+                });
+            } catch (e) { console.error(e); }
+        };
+
+        document.getElementById('support-chat-input').onkeypress = (e) => { if (e.key === 'Enter') document.getElementById('support-chat-send').click(); };
+
         // Auth & Role
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const docSnap = await getDoc(doc(db, 'admins', user.email));
-                if (docSnap.exists()) {
-                    currentAdmin = user;
-                    adminRole = docSnap.data().role || 'moderator';
-                    document.getElementById('user-display').innerText = user.displayName.split(' ')[0];
-                    document.getElementById('stat-role').innerText = adminRole.replace('-', ' ');
-                    document.getElementById('loading-screen').classList.add('hidden');
-                    document.getElementById('dashboard-layout').classList.remove('hidden');
-                    refreshAll();
-                    setupRealtimeListeners();
-                } else {
-                    await signOut(auth);
-                    window.location.reload();
+                try {
+                    const docSnap = await getDoc(doc(db, 'admins', user.email));
+                    if (docSnap.exists()) {
+                        currentAdmin = user;
+                        adminRole = docSnap.data().role || 'moderator';
+                        document.getElementById('user-display').innerText = user.displayName.split(' ')[0];
+                        document.getElementById('stat-role').innerText = adminRole.replace('-', ' ');
+                        document.getElementById('loading-screen').classList.add('hidden');
+                        document.getElementById('dashboard-layout').classList.remove('hidden');
+                        
+                        await setAdminOnline();
+                        refreshAll();
+                        setupRealtimeListeners();
+                        setupSupportListeners();
+                    } else {
+                        Swal.fire('Access Denied', 'Your account is not authorized as admin.', 'error').then(() => {
+                            signOut(auth).then(() => window.location.reload());
+                        });
+                    }
+                } catch (e) {
+                    console.error("Permission check failed", e);
+                    document.getElementById('loading-screen').innerHTML = `<div class="text-center"><p class="text-red-500 mb-4">Access Denied: Missing Permissions</p><p class="text-zinc-500 text-xs">Please check your Firebase Firestore rules.</p></div>`;
                 }
             } else {
-                document.getElementById('loading-screen').classList.add('hidden');
-                // Redirect logic if needed
+                const provider = new GoogleAuthProvider();
+                signInWithPopup(auth, provider).catch(err => console.error("Login error", err));
             }
         });
 
@@ -280,160 +476,228 @@
 
         // Dynamic System Health & Analytics
         async function refreshStats() {
-            const mSnap = await getDocs(collection(db, 'members'));
-            const msSnap = await getDocs(collection(db, 'messages'));
-            const logSnap = await getDocs(query(collection(db, 'logs'), limit(50)));
-            
-            document.getElementById('stat-members').innerText = mSnap.size;
-            document.getElementById('stat-msgs').innerText = msSnap.filter(d => !d.data().read).length;
-            
-            // Health calc: base 95% + log success vs failure
-            let health = 95 + (Math.random() * 4);
-            document.getElementById('stat-health').innerText = `${health.toFixed(1)}%`;
-            
-            updateChartData();
+            try {
+                const mSnap = await getDocs(collection(db, 'members'));
+                const msSnap = await getDocs(collection(db, 'messages'));
+                
+                document.getElementById('stat-members').innerText = mSnap.size;
+                document.getElementById('stat-msgs').innerText = msSnap.docs.filter(d => !d.data().read).length;
+                
+                let health = 95 + (Math.random() * 4);
+                document.getElementById('stat-health').innerText = `${health.toFixed(1)}%`;
+                
+                updateChartData();
+            } catch (e) { console.error("Stats refresh error", e); }
         }
 
         async function updateChartData() {
-            const mSnap = await getDocs(collection(db, 'members'));
-            const msgSnap = await getDocs(collection(db, 'messages'));
-            
-            const days = Array.from({length: 7}, (_, i) => {
-                const d = new Date(); d.setDate(d.getDate() - (6 - i));
-                return d.toISOString().split('T')[0];
-            });
-
-            const mData = days.map(day => mSnap.docs.filter(d => d.data().createdAt?.startsWith(day)).length);
-            const msgData = days.map(day => msgSnap.docs.filter(d => d.data().createdAt?.startsWith(day)).length);
-
-            if (!mainChart) {
-                const ctx = document.getElementById('analyticsChart').getContext('2d');
-                mainChart = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels: days.map(d => d.split('-')[2]), datasets: [
-                        { label: 'New Members', data: mData, borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)' },
-                        { label: 'Incoming Messages', data: msgData, borderColor: '#a855f7', tension: 0.4, borderDash: [5, 5] }
-                    ]},
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#111' }, ticks: { color: '#555' } }, x: { grid: { display: false }, ticks: { color: '#555' } } } }
+            try {
+                const mSnap = await getDocs(collection(db, 'members'));
+                const msgSnap = await getDocs(collection(db, 'messages'));
+                
+                const days = Array.from({length: 7}, (_, i) => {
+                    const d = new Date(); d.setDate(d.getDate() - (6 - i));
+                    return d.toISOString().split('T')[0];
                 });
-            } else {
-                mainChart.data.datasets[0].data = mData;
-                mainChart.data.datasets[1].data = msgData;
-                mainChart.update();
-            }
+
+                const mData = days.map(day => mSnap.docs.filter(d => d.data().createdAt?.startsWith(day)).length);
+                const msgData = days.map(day => msgSnap.docs.filter(d => d.data().createdAt?.startsWith(day)).length);
+
+                if (!mainChart) {
+                    const ctx = document.getElementById('analyticsChart').getContext('2d');
+                    mainChart = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels: days.map(d => d.split('-')[2]), datasets: [
+                            { label: 'New Members', data: mData, borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)' },
+                            { label: 'Incoming Messages', data: msgData, borderColor: '#a855f7', tension: 0.4, borderDash: [5, 5] }
+                        ]},
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#111' }, ticks: { color: '#555' } }, x: { grid: { display: false }, ticks: { color: '#555' } } } }
+                    });
+                } else {
+                    mainChart.data.datasets[0].data = mData;
+                    mainChart.data.datasets[1].data = msgData;
+                    mainChart.update();
+                }
+            } catch (e) { console.error("Chart update error", e); }
         }
 
-        // Real-time Comms (Buzzer & Internal Chat)
+        // Real-time Listeners
         function setupRealtimeListeners() {
-            // New Message Alert
             onSnapshot(query(collection(db, 'messages'), where('read', '==', false)), (snap) => {
                 const badge = document.getElementById('msg-count');
                 if (snap.size > 0) {
                     badge.innerText = snap.size; badge.classList.remove('hidden');
-                    if (document.getElementById('set-buzzer').checked && snap.docChanges().some(c => c.type === 'added')) buzzer.play();
+                    if (document.getElementById('set-buzzer').checked && snap.docChanges().some(c => c.type === 'added')) {
+                        buzzer.play().catch(() => {});
+                    }
                 } else badge.classList.add('hidden');
                 loadMessages();
             });
-
-            // Internal Chat
-            onSnapshot(query(collection(db, 'admin_chats'), orderBy('time', 'desc'), limit(50)), (snap) => {
-                const box = document.getElementById('chat-messages');
-                box.innerHTML = '';
-                snap.docs.reverse().forEach(d => {
-                    const c = d.data();
-                    const isMe = c.email === currentAdmin.email;
-                    box.innerHTML += `
-                        <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                            <div class="max-w-[80%] ${isMe ? 'bg-indigo-600' : 'bg-zinc-800'} p-3 px-4 rounded-2xl">
-                                <p class="text-[9px] font-bold opacity-50 mb-1 uppercase tracking-widest">${c.name}</p>
-                                <p class="text-sm">${c.msg}</p>
-                            </div>
-                        </div>`;
-                });
-                box.scrollTop = box.scrollHeight;
-            });
         }
 
-        document.getElementById('chat-send').onclick = async () => {
-            const inp = document.getElementById('chat-input');
-            if (!inp.value.trim()) return;
-            await addDoc(collection(db, 'admin_chats'), { name: currentAdmin.displayName, email: currentAdmin.email, msg: inp.value, time: serverTimestamp() });
-            inp.value = '';
-        };
+        // Helper: Image Upload
+        async function handleUpload(file) {
+            const modal = document.getElementById('compression-modal');
+            const bar = document.getElementById('comp-bar');
+            modal.classList.remove('hidden'); bar.style.width = '20%';
+            try {
+                const options = { maxSizeMB: 0.2, maxWidthOrHeight: 1200, useWebWorker: true, onProgress: p => bar.style.width = (20 + p * 40) + '%' };
+                const compressed = await imageCompression(file, options);
+                const formData = new FormData(); formData.append('image', compressed);
+                bar.style.width = '70%';
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
+                const data = await res.json();
+                bar.style.width = '100%'; setTimeout(() => modal.classList.add('hidden'), 500);
+                return data.data.url;
+            } catch (error) { modal.classList.add('hidden'); showToast('Upload failed', 'error'); return null; }
+        }
 
-        // Bulk Actions & CSV Export
-        window.bulkDelete = async (type) => {
-            if (adminRole !== 'super-admin') return Swal.fire('Denied', 'Only Super Admins can mass delete.', 'error');
-            const checks = document.querySelectorAll(`input[name="bulk-${type}"]:checked`);
-            if (checks.length === 0) return showToast('Nothing selected', 'info');
-
-            const res = await Swal.fire({ title: 'System Wipe', text: `Delete ${checks.length} permanent entries?`, icon: 'warning', showCancelButton: true, background: '#111', color: '#fff' });
-            if (res.isConfirmed) {
-                for (const c of checks) await deleteDoc(doc(db, type, c.value));
-                showToast('Batch deleted');
-                refreshAll();
+        // Member Upload
+        document.getElementById('member-upload-trigger').onclick = () => document.getElementById('member-file').click();
+        document.getElementById('member-file').onchange = async (e) => {
+            const url = await handleUpload(e.target.files[0]);
+            if (url) {
+                document.getElementById('member-url').value = url;
+                document.getElementById('member-img-tag').src = url;
+                document.getElementById('member-upload-trigger').classList.add('hidden');
+                document.getElementById('member-preview-box').classList.remove('hidden');
             }
         };
+        document.getElementById('member-remove-btn').onclick = () => {
+            document.getElementById('member-url').value = '';
+            document.getElementById('member-preview-box').classList.add('hidden');
+            document.getElementById('member-upload-trigger').classList.remove('hidden');
+        };
 
-        window.exportCSV = async (col) => {
-            const snap = await getDocs(collection(db, col));
-            if (snap.empty) return showToast('No data to export', 'error');
-            
-            let csv = Object.keys(snap.docs[0].data()).join(',') + '\n';
-            snap.forEach(d => { csv += Object.values(d.data()).map(v => `"${v}"`).join(',') + '\n'; });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', ''); a.setAttribute('href', url); a.setAttribute('download', `${col}_backup.csv`);
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        // Notice Upload
+        document.getElementById('notice-upload-trigger').onclick = () => document.getElementById('notice-file').click();
+        document.getElementById('notice-file').onchange = async (e) => {
+            const url = await handleUpload(e.target.files[0]);
+            if (url) {
+                document.getElementById('notice-url').value = url;
+                document.getElementById('notice-img-tag').src = url;
+                document.getElementById('notice-upload-trigger').classList.add('hidden');
+                document.getElementById('notice-preview-box').classList.remove('hidden');
+            }
+        };
+        document.getElementById('notice-remove-btn').onclick = () => {
+            document.getElementById('notice-url').value = '';
+            document.getElementById('notice-preview-box').classList.add('hidden');
+            document.getElementById('notice-upload-trigger').classList.remove('hidden');
+        };
+
+        // CRUD Actions
+        window.deleteData = async (col, id, name) => {
+            if (adminRole !== 'super-admin') return showToast('Permission Denied', 'error');
+            const res = await Swal.fire({ title: 'Confirm Delete', text: `Deleting ${name} permanently.`, icon: 'warning', showCancelButton: true, background: '#111', color: '#fff' });
+            if (res.isConfirmed) { await deleteDoc(doc(db, col, id)); showToast('Entry Deleted'); refreshAll(); }
+        };
+
+        document.getElementById('add-member-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('member-url').value; if(!url) return showToast('Image required', 'error');
+            try {
+                await addDoc(collection(db, 'members'), {
+                    name: document.getElementById('member-name').value,
+                    designation: document.getElementById('member-designation').value,
+                    bio: document.getElementById('member-bio').value,
+                    imgSrc: url, featured: document.getElementById('member-featured').checked,
+                    createdAt: new Date().toISOString()
+                });
+                e.target.reset(); document.getElementById('member-remove-btn').click();
+                showToast('Member Enrolled'); loadMembers();
+            } catch(e) { showToast('Failed to add member', 'error'); }
+        };
+
+        document.getElementById('add-notice-form').onsubmit = async (e) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, 'notices'), {
+                    title: document.getElementById('notice-title').value,
+                    category: document.getElementById('notice-category').value,
+                    content: document.getElementById('notice-content').value,
+                    imgSrc: document.getElementById('notice-url').value || null,
+                    createdAt: new Date().toISOString()
+                });
+                e.target.reset(); document.getElementById('notice-remove-btn').click();
+                showToast('Notice Published'); loadNotices();
+            } catch(e) { showToast('Failed to post notice', 'error'); }
         };
 
         // Data Loading
         async function loadMembers() {
-            const snap = await getDocs(query(collection(db, 'members'), orderBy('createdAt', 'desc')));
-            const list = document.getElementById('member-list');
-            list.innerHTML = '';
-            snap.forEach(d => {
-                const m = d.data();
-                list.innerHTML += `
-                    <div class="p-4 bg-zinc-900/30 rounded-2xl border border-zinc-800 flex items-center justify-between group">
-                        <div class="flex items-center gap-4">
-                            <input type="checkbox" name="bulk-members" value="${d.id}" class="w-4 h-4 rounded accent-indigo-500">
-                            <img src="${m.imgSrc}" class="w-12 h-12 rounded-xl object-cover ring-2 ring-indigo-500/10">
-                            <div><h4 class="font-bold text-sm">${m.name}</h4><p class="text-[10px] text-zinc-500 font-bold uppercase">${m.designation}</p></div>
-                        </div>
-                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                            <button onclick="window.initEditMember('${d.id}')" class="w-8 h-8 bg-zinc-800 rounded-lg hover:text-indigo-400"><i class="fas fa-pen text-xs"></i></button>
-                            <button onclick="window.deleteData('members', '${d.id}', '${m.name}')" class="w-8 h-8 bg-zinc-800 rounded-lg hover:text-red-500"><i class="fas fa-trash text-xs"></i></button>
-                        </div>
-                    </div>`;
-            });
-            refreshStats();
+            try {
+                const snap = await getDocs(query(collection(db, 'members'), orderBy('createdAt', 'desc')));
+                const list = document.getElementById('member-list');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const m = d.data();
+                    list.innerHTML += `
+                        <div class="p-4 bg-zinc-900/30 rounded-2xl border border-zinc-800 flex items-center justify-between group">
+                            <div class="flex items-center gap-4">
+                                <input type="checkbox" name="bulk-members" value="${d.id}" class="w-4 h-4 rounded accent-indigo-500">
+                                <img src="${m.imgSrc}" class="w-12 h-12 rounded-xl object-cover">
+                                <div><h4 class="font-bold text-sm">${m.name}</h4><p class="text-[10px] text-zinc-500 font-bold uppercase">${m.designation}</p></div>
+                            </div>
+                            <button onclick="window.deleteData('members', '${d.id}', '${m.name}')" class="w-8 h-8 text-zinc-700 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                });
+                refreshStats();
+            } catch(e) { console.error("Load members error", e); }
+        }
+
+        async function loadNotices() {
+            try {
+                const snap = await getDocs(query(collection(db, 'notices'), orderBy('createdAt', 'desc')));
+                const list = document.getElementById('notice-list');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const n = d.data();
+                    const catColors = { urgent: 'text-red-500 bg-red-500/10', warning: 'text-amber-500 bg-amber-500/10', general: 'text-indigo-500 bg-indigo-500/10', event: 'text-emerald-500 bg-emerald-500/10' };
+                    list.innerHTML += `
+                        <div class="p-5 bg-zinc-900/50 rounded-2xl border border-zinc-800 flex items-start justify-between group">
+                            <div class="flex gap-4 w-full">
+                                <input type="checkbox" name="bulk-notices" value="${d.id}" class="mt-1 w-4 h-4 rounded accent-indigo-500">
+                                ${n.imgSrc ? `<img src="${n.imgSrc}" class="w-20 h-20 rounded-xl object-cover shrink-0">` : ''}
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3">
+                                        <h4 class="font-bold text-indigo-400">${n.title}</h4>
+                                        <span class="text-[10px] px-2 py-1 rounded-md font-bold uppercase ${catColors[n.category] || catColors.general}">${n.category || 'general'}</span>
+                                    </div>
+                                    <p class="text-xs text-zinc-500 mt-2 leading-relaxed">${n.content}</p>
+                                    <p class="text-[10px] text-zinc-700 mt-2 font-bold uppercase">${new Date(n.createdAt).toLocaleDateString()}</p>
+                                </div>
+                            </div>
+                            <button onclick="window.deleteData('notices', '${d.id}', 'Notice')" class="w-8 h-8 text-zinc-700 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                });
+            } catch(e) { console.error("Load notices error", e); }
         }
 
         async function loadMessages() {
-            const snap = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc')));
-            const list = document.getElementById('inbox-list');
-            list.innerHTML = '';
-            snap.forEach(d => {
-                const m = d.data();
-                list.innerHTML += `
-                    <div class="p-5 rounded-2xl border ${m.read ? 'border-zinc-900 bg-transparent' : 'border-indigo-500/30 bg-indigo-500/5'} flex items-center justify-between group transition-all">
-                        <div class="flex items-center gap-4 flex-1 cursor-pointer" onclick="window.viewMessage('${d.id}')">
-                            <input type="checkbox" name="bulk-messages" value="${d.id}" class="w-4 h-4 rounded accent-indigo-500" onclick="event.stopPropagation()">
-                            <div class="w-10 h-10 rounded-lg bg-zinc-900 flex items-center justify-center ${m.read ? 'text-zinc-700' : 'text-indigo-400'}"><i class="fas fa-envelope-open-text"></i></div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-sm">${m.name} <span class="text-xs font-normal text-zinc-600 ml-2">${m.contact}</span></h4>
-                                <p class="text-xs text-zinc-500 mt-1 line-clamp-1">${m.message}</p>
+            try {
+                const snap = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc')));
+                const list = document.getElementById('inbox-list');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const m = d.data();
+                    list.innerHTML += `
+                        <div class="p-5 rounded-2xl border ${m.read ? 'border-zinc-900 bg-transparent' : 'border-indigo-500/30 bg-indigo-500/5'} flex items-center justify-between group transition-all">
+                            <div class="flex items-center gap-4 flex-1 cursor-pointer" onclick="window.viewMessage('${d.id}')">
+                                <input type="checkbox" name="bulk-messages" value="${d.id}" class="w-4 h-4 rounded accent-indigo-500" onclick="event.stopPropagation()">
+                                <div class="w-10 h-10 rounded-lg bg-zinc-900 flex items-center justify-center ${m.read ? 'text-zinc-700' : 'text-indigo-400'}"><i class="fas fa-envelope-open-text"></i></div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-sm">${m.name} <span class="text-xs font-normal text-zinc-600 ml-2">${m.contact}</span></h4>
+                                    <p class="text-xs text-zinc-500 mt-1 line-clamp-1">${m.message}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex gap-2 ml-4">
-                            ${!m.read ? `<button onclick="window.markRead('${d.id}')" class="px-3 py-1 bg-indigo-600 text-[9px] font-black uppercase rounded">Mark Read</button>` : ''}
-                            <button onclick="window.deleteData('messages', '${d.id}', 'Message')" class="w-8 h-8 text-zinc-600 hover:text-red-500"><i class="fas fa-trash-alt text-xs"></i></button>
-                        </div>
-                    </div>`;
-            });
+                            <div class="flex gap-2">
+                                ${!m.read ? `<button onclick="window.markRead('${d.id}')" class="px-3 py-1 bg-indigo-600 text-[9px] font-black uppercase rounded">Mark Read</button>` : ''}
+                                <button onclick="window.deleteData('messages', '${d.id}', 'Message')" class="w-8 h-8 text-zinc-600 hover:text-red-500"><i class="fas fa-trash-alt text-xs"></i></button>
+                            </div>
+                        </div>`;
+                });
+            } catch(e) { console.error("Load messages error", e); }
         }
 
         window.viewMessage = async (id) => {
@@ -453,41 +717,42 @@
 
         window.markRead = async (id) => { await updateDoc(doc(db, 'messages', id), { read: true }); closeModal('msg-detail-modal'); loadMessages(); };
 
-        // Helper: Image Upload
-        async function handleUpload(file) {
-            const modal = document.getElementById('compression-modal');
-            const bar = document.getElementById('comp-bar');
-            modal.classList.remove('hidden'); bar.style.width = '20%';
+        // Admin Management
+        document.getElementById('add-admin-btn').onclick = async () => {
+            const email = document.getElementById('new-admin-email').value;
+            const role = document.getElementById('new-admin-role').value;
+            if(!email) return showToast('Email required', 'error');
             try {
-                const options = { maxSizeMB: 0.2, maxWidthOrHeight: 1200, useWebWorker: true, onProgress: p => bar.style.width = (20 + p * 40) + '%' };
-                const compressed = await imageCompression(file, options);
-                const formData = new FormData(); formData.append('image', compressed);
-                bar.style.width = '70%';
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
-                const data = await res.json();
-                bar.style.width = '100%'; setTimeout(() => modal.classList.add('hidden'), 500);
-                return data.data.url;
-            } catch (error) { modal.classList.add('hidden'); showToast('Upload failed', 'error'); return null; }
-        }
-
-        document.getElementById('member-upload-trigger').onclick = () => document.getElementById('member-file').click();
-        document.getElementById('member-file').onchange = async (e) => {
-            const url = await handleUpload(e.target.files[0]);
-            if (url) {
-                document.getElementById('member-url').value = url;
-                document.getElementById('member-img-tag').src = url;
-                document.getElementById('member-upload-trigger').classList.add('hidden');
-                document.getElementById('member-preview-box').classList.remove('hidden');
-            }
+                await setDoc(doc(db, 'admins', email), { role });
+                showToast('Admin provisioned');
+                loadAdmins();
+            } catch(e) { showToast('Permission denied', 'error'); }
         };
+
+        async function loadAdmins() {
+            try {
+                const snap = await getDocs(collection(db, 'admins'));
+                const list = document.getElementById('admin-list');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const a = d.data();
+                    list.innerHTML += `
+                        <div class="p-4 bg-zinc-900 rounded-2xl border border-zinc-800 flex justify-between items-center">
+                            <div><p class="text-sm font-bold">${d.id}</p><p class="text-[9px] text-zinc-500 uppercase font-black">${a.role}</p></div>
+                            <button onclick="window.deleteData('admins', '${d.id}', 'Admin Access')" class="text-zinc-700 hover:text-red-500"><i class="fas fa-user-minus"></i></button>
+                        </div>`;
+                });
+            } catch(e) { console.error("Load admins error", e); }
+        }
 
         // Navigation
         document.querySelectorAll('.sidebar-item').forEach(item => {
             item.onclick = function() {
+                const sectionId = this.dataset.section;
                 document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
                 document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-                document.getElementById(this.dataset.section).classList.remove('hidden');
+                document.getElementById(sectionId).classList.remove('hidden');
                 document.getElementById('section-title').innerText = this.innerText;
                 if (window.innerWidth < 1024) document.getElementById('sidebar').classList.add('-translate-x-full');
             };
@@ -495,38 +760,29 @@
 
         document.getElementById('mobile-toggle').onclick = () => document.getElementById('sidebar').classList.toggle('-translate-x-full');
 
-        // CRUD & Logs
-        const refreshAll = () => { loadMembers(); loadMessages(); refreshStats(); };
-        window.deleteData = async (col, id, name) => {
-            const res = await Swal.fire({ title: 'Confirm Delete', text: `Deleting ${name} permanently.`, icon: 'warning', showCancelButton: true, background: '#111', color: '#fff' });
-            if (res.isConfirmed) { await deleteDoc(doc(db, col, id)); showToast('Registry updated'); refreshAll(); }
+        const refreshAll = () => { loadMembers(); loadNotices(); loadMessages(); loadAdmins(); refreshStats(); };
+
+        window.bulkDelete = async (type) => {
+            if (adminRole !== 'super-admin') return Swal.fire('Denied', 'Only Super Admins can mass delete.', 'error');
+            const checks = document.querySelectorAll(`input[name="bulk-${type}"]:checked`);
+            if (checks.length === 0) return showToast('Nothing selected', 'info');
+            const res = await Swal.fire({ title: 'System Wipe', text: `Delete ${checks.length} entries?`, icon: 'warning', showCancelButton: true, background: '#111', color: '#fff' });
+            if (res.isConfirmed) { for (const c of checks) await deleteDoc(doc(db, type, c.value)); showToast('Batch deleted'); refreshAll(); }
         };
 
-        document.getElementById('add-member-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const url = document.getElementById('member-url').value; if(!url) return showToast('Image required', 'error');
-            await addDoc(collection(db, 'members'), {
-                name: document.getElementById('member-name').value,
-                designation: document.getElementById('member-designation').value,
-                bio: document.getElementById('member-bio').value,
-                imgSrc: url, featured: document.getElementById('member-featured').checked,
-                createdAt: new Date().toISOString()
-            });
-            e.target.reset(); document.getElementById('member-remove-btn').click();
-            showToast('Enrollment Success'); loadMembers();
+        window.exportCSV = async (col) => {
+            try {
+                const snap = await getDocs(collection(db, col));
+                if (snap.empty) return showToast('No data', 'error');
+                let csv = Object.keys(snap.docs[0].data()).join(',') + '\n';
+                snap.forEach(d => { csv += Object.values(d.data()).map(v => `"${v}"`).join(',') + '\n'; });
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = `${col}_backup.csv`; a.click();
+            } catch(e) { showToast('Export failed', 'error'); }
         };
 
-        const loadActivity = async () => {
-            const snap = await getDocs(query(collection(db, 'logs'), orderBy('time', 'desc'), limit(20)));
-            const list = document.getElementById('activity-list');
-            list.innerHTML = '';
-            snap.forEach(d => {
-                const l = d.data();
-                list.innerHTML += `<div class="p-3 bg-zinc-900/50 rounded-xl border border-zinc-800 text-[10px]"><span class="text-indigo-400 font-bold">${l.action}</span>: ${l.detail}</div>`;
-            });
-        };
-
-        window.saveSettings = () => showToast('Settings synchronized');
+        refreshStats();
     </script>
 </body>
 </html>
