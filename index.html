@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>দুষ্ট নারী বিবর্জিত সংগঠন - হোম</title>
+    <title>দুষ্ট নারী বিবর্জিত সংগঠন</title>
     
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -19,147 +21,272 @@
             --text-gray: #7f8c8d;
             --bg-body: #f8f9fa;
             --card-bg: #ffffff;
+            --border-color: #eee;
             --shadow-soft: 0 10px 30px rgba(41, 128, 185, 0.08);
             --shadow-hover: 0 20px 40px rgba(41, 128, 185, 0.15);
             --radius-lg: 24px;
             --radius-btn: 50px;
         }
 
-        /* Dark Mode Variables */
         body.dark-mode {
             --bg-body: #121212;
+            --card-bg: #1e1e1e;
             --text-dark: #ecf0f1;
             --text-gray: #bdc3c7;
-            --card-bg: #1e1e1e;
-            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.5);
-            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.7);
+            --border-color: #333;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: var(--bg-body); color: var(--text-dark); line-height: 1.6; overflow-x: hidden; transition: background 0.3s, color 0.3s; }
 
-        /* --- Dark Mode Toggle --- */
-        .theme-toggle {
-            position: fixed; bottom: 20px; left: 20px;
-            width: 50px; height: 50px;
-            background: var(--primary-dark); color: white;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 1001; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transition: 0.3s;
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
         }
-        .theme-toggle:hover { transform: scale(1.1); }
 
-        /* Notice Bar */
         .notice-bar {
             background: linear-gradient(90deg, var(--primary-dark), var(--primary-light));
             color: white; padding: 12px 20px; display: flex; align-items: center; gap: 20px;
             position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(10px);
         }
-        .notice-badge { background: rgba(255,255,255,0.25); padding: 6px 16px; border-radius: 30px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.3); }
+
+        .notice-badge {
+            background: rgba(255,255,255,0.25); padding: 6px 16px; border-radius: 30px;
+            font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+            white-space: nowrap; border: 1px solid rgba(255,255,255,0.3);
+        }
+
         .notice-content { flex: 1; overflow: hidden; position: relative; }
         .notice-marquee { white-space: nowrap; display: inline-block; animation: marquee 30s linear infinite; }
         .notice-marquee span { padding-right: 50px; font-size: 0.95rem; display: inline-flex; align-items: center; }
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .notice-link { background: white; color: var(--primary-dark); text-decoration: none; font-weight: 600; font-size: 0.85rem; padding: 6px 18px; border-radius: 30px; transition: 0.3s ease; white-space: nowrap; }
 
-        /* Hero Section */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .notice-link {
+            background: white; color: var(--primary-dark); text-decoration: none;
+            font-weight: 600; font-size: 0.85rem; padding: 6px 18px; border-radius: 30px;
+            transition: 0.3s ease; white-space: nowrap;
+        }
+        .notice-link:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        .theme-toggle {
+            position: fixed; bottom: 20px; left: 20px;
+            width: 50px; height: 50px; background: var(--primary-dark); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 1001; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
         header {
             position: relative; min-height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
             color: white; padding: 100px 20px 60px; overflow: hidden;
         }
-        .hero-container { position: relative; z-index: 10; max-width: 1000px; width: 100%; animation: fadeIn Up 1s ease-out; }
-        .hero-title { font-size: 4rem; font-weight: 700; line-height: 1.1; margin-bottom: 40px; text-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-        
-        .hero-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; }
-        .info-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); padding: 30px; border-radius: 20px; text-align: left; transition: transform 0.3s ease; }
-        .info-card:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-5px); }
-        .info-card h3 { font-size: 1.3rem; margin-bottom: 12px; opacity: 0.95; display: flex; align-items: center; gap: 10px; color: white; }
-        .info-card p { font-size: 1.1rem; opacity: 0.9; line-height: 1.6; color: white; }
 
         .shape { position: absolute; background: rgba(255, 255, 255, 0.05); border-radius: 50%; animation: float 8s infinite ease-in-out; z-index: 1; }
         .s1 { width: 400px; height: 400px; top: -100px; left: -100px; }
         .s2 { width: 300px; height: 300px; bottom: 50px; right: -50px; animation-delay: 2s; }
+        .s3 { width: 150px; height: 150px; top: 20%; right: 15%; animation-delay: 4s; }
+
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
 
-        /* Wave */
+        .hero-container { position: relative; z-index: 10; max-width: 1000px; width: 100%; animation: fadeInUp 1s ease-out; }
+        .hero-tag {
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); padding: 10px 25px;
+            border-radius: 50px; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 500; letter-spacing: 0.5px; position: absolute;
+        }
+		.hero-tag-left{ top: 80px; left: 10px }
+		.hero-tag-right{ top: 80px; right: 10px }
+        .hero-title { font-size: 4rem; font-weight: 700; line-height: 1.1; margin-bottom: 40px; text-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+
+        .hero-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; }
+        .info-card {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.2); padding: 30px; border-radius: 20px;
+            text-align: left; transition: transform 0.3s ease;
+        }
+        .info-card:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-5px); }
+        .info-card h3 { font-size: 1.3rem; margin-bottom: 12px; opacity: 0.95; display: flex; align-items: center; gap: 10px; }
+        .info-card p { font-size: 1.1rem; opacity: 0.9; line-height: 1.6; }
+
         .wave-container { position: absolute; bottom: 0; left: 0; width: 100%; overflow: hidden; line-height: 0; z-index: 5; }
         .waves-svg { position: relative; width: 100%; height: 15vh; min-height: 100px; max-height: 150px; }
         .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
-        .parallax > use:nth-child(1) { animation-delay: -2s; duration: 7s; fill: rgba(248, 249, 250, 0.3); }
-        .parallax > use:nth-child(2) { animation-delay: -3s; duration: 10s; fill: rgba(248, 249, 250, 0.5); }
-        .parallax > use:nth-child(3) { animation-delay: -4s; duration: 13s; fill: var(--bg-body); transition: fill 0.3s; }
+        .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; fill: rgba(248, 249, 250, 0.3); }
+        .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; fill: rgba(248, 249, 250, 0.5); }
+        .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; fill: var(--bg-body); }
+
         @keyframes move-forever { 0% { transform: translate3d(-90px, 0, 0); } 100% { transform: translate3d(85px, 0, 0); } }
 
-        /* Sections */
-        .section-header { text-align: center; margin-bottom: 50px; }
-        .section-header h2 { font-size: 2.8rem; color: var(--primary-dark); font-weight: 700; margin-bottom: 15px; display: inline-block; position: relative; }
-        .section-header p { color: var(--text-gray); font-size: 1.2rem; }
-
-        /* Featured Members */
         .leaders-section { padding: 80px 20px; max-width: 1280px; margin: 0 auto; }
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
-        .profile-card { background: var(--card-bg); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-soft); transition: 0.4s; position: relative; }
-        .profile-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-hover); }
-        .card-img-container { height: 300px; overflow: hidden; }
-        .card-img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .card-body { padding: 30px; text-align: center; }
-        .member-name { font-size: 1.5rem; color: var(--text-dark); margin: 10px 0; }
-        .member-role { color: var(--primary-light); font-weight: 600; text-transform: uppercase; font-size: 0.9rem; }
-        
-        /* Contact Form Section */
-        .contact-section { padding: 80px 20px; background: var(--card-bg); margin-top: 50px; }
-        .contact-container { max-width: 800px; margin: 0 auto; }
-        .contact-form { display: grid; gap: 20px; }
-        .form-group input, .form-group textarea { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; background: var(--bg-body); color: var(--text-dark); transition: 0.3s; }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-light); }
-        .btn-submit { background: var(--primary-dark); color: white; border: none; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-size: 1.1rem; font-weight: 600; transition: 0.3s; }
-        .btn-submit:hover { background: var(--primary-light); transform: translateY(-3px); }
+        .section-header { text-align: center; margin-bottom: 70px; }
+        .section-header h2 {
+            font-size: 2.8rem; color: var(--primary-dark); font-weight: 700; margin-bottom: 15px;
+            display: inline-block; position: relative;
+        }
+        .section-header h2::after { content: ''; position: absolute; width: 60%; height: 5px; background: var(--primary-light); bottom: -10px; left: 20%; border-radius: 10px; }
+        .section-header p { color: var(--text-gray); font-size: 1.2rem; margin-top: 20px; }
 
-        footer { background: #1a252f; color: rgba(255,255,255,0.7); text-align: center; padding: 50px 20px; margin-top: 0; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; padding: 20px 10px; }
+        .profile-card {
+            background: var(--card-bg); border-radius: var(--radius-lg); overflow: hidden;
+            box-shadow: var(--shadow-soft); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; display: flex; flex-direction: column; border: 1px solid var(--border-color);
+        }
+        .profile-card:hover { transform: translateY(-12px); box-shadow: var(--shadow-hover); }
+
+        .card-img-container { height: 250px; overflow: hidden; position: relative; }
+        .card-img-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .profile-card:hover .card-img-container img { transform: scale(1.1); }
+
+        .card-body { padding: 25px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        .member-role {
+            background: var(--primary-light); color: white; padding: 4px 16px; border-radius: 50px;
+            font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+            display: inline-block; margin-bottom: 10px; align-self: center;
+        }
+        .member-name { font-size: 1.5rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
+        .member-bio { color: var(--text-gray); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; text-align: justify; }
+        .read-more-btn { color: var(--primary-light); font-size: 0.85rem; font-weight: 700; text-decoration: none; cursor: pointer; transition: 0.3s; }
+
+        .social-links { margin-top: auto; display: flex; justify-content: center; gap: 12px; }
+        .social-btn {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--bg-body);
+            color: var(--primary-dark); display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease; text-decoration: none; font-size: 1.1rem;
+        }
+        .social-btn:hover { background: var(--primary-light); color: white; transform: translateY(-3px); }
+
+        .btn-container { text-align: center; margin-top: 60px; }
+        .btn-main {
+            display: inline-flex; align-items: center; gap: 10px; padding: 16px 50px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white; text-decoration: none; border-radius: var(--radius-btn);
+            font-size: 1.2rem; font-weight: 600; box-shadow: 0 10px 25px rgba(41, 128, 185, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-main:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(52, 152, 219, 0.4); }
+
+        .contact-section {
+            padding: 80px 40px; background: var(--card-bg); margin: 60px auto;
+            border-radius: 30px; max-width: 800px; box-shadow: var(--shadow-soft); border: 1px solid var(--border-color);
+        }
+
+        .form-inp {
+            width: 100%; padding: 18px; border: 2px solid var(--border-color);
+            border-radius: 15px; background: var(--bg-body); color: var(--text-dark);
+            outline: none; transition: 0.3s; margin-bottom: 20px;
+        }
+        .form-inp:focus { border-color: var(--primary-light); }
+
+        /* --- Chat Widget --- */
+        .chat-widget { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        .chat-btn { width: 60px; height: 60px; border-radius: 50%; background: var(--primary-dark); color: white; border: none; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: 0.3s; position: relative; }
+        .chat-btn:hover { transform: scale(1.1); }
+        .chat-badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-weight: 800; }
         
+        .chat-box { width: 350px; height: 500px; background: var(--card-bg); border-radius: 25px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border-color); animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .chat-header { background: var(--primary-dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+        .admin-status-indicator { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 400; opacity: 0.9; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #95a5a6; }
+        .status-dot.online { background: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
+        
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: var(--bg-body); }
+        .chat-input-area { padding: 15px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; background: var(--card-bg); }
+        .chat-input { flex: 1; padding: 10px 15px; border-radius: 15px; border: 1px solid var(--border-color); outline: none; background: var(--bg-body); color: var(--text-dark); font-size: 0.9rem; }
+        .chat-send { background: var(--primary-dark); color: white; border: none; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        
+        .chat-form-overlay { position: absolute; inset: 0; background: var(--card-bg); z-index: 10; display: flex; flex-direction: column; padding: 30px; justify-content: center; }
+        .chat-form-overlay h3 { margin-bottom: 20px; text-align: center; color: var(--primary-dark); font-size: 1.1rem; }
+
+        .msg-container { display: flex; flex-direction: column; width: 100%; }
+        .msg-align-right { align-items: flex-end; }
+        .msg-align-left { align-items: flex-start; }
+        .msg { max-width: 85%; padding: 10px 16px; border-radius: 18px; font-size: 0.9rem; position: relative; line-height: 1.4; }
+        .msg-received { background: #e9ecef; color: #2c3e50; border-bottom-left-radius: 4px; }
+        .msg-sent { background: var(--primary-dark); color: white; border-bottom-right-radius: 4px; }
+        .msg-name { font-size: 0.7rem; font-weight: 700; color: var(--text-gray); margin-bottom: 2px; }
+        .msg-time { font-size: 0.6rem; opacity: 0.6; margin-top: 4px; }
+
+        footer {
+            background: #1a252f; color: rgba(255,255,255,0.7); text-align: center;
+            padding: 50px 20px; margin-top: 80px; border-top: 5px solid var(--primary-light);
+        }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
         @media (max-width: 768px) {
             .hero-title { font-size: 2.5rem; }
-            .hero-info-grid { grid-template-columns: 1fr; }
-            .notice-bar { flex-direction: column; padding: 10px; }
+            .hero-info-grid { grid-template-columns: 1fr; gap: 15px; }
+            header { padding-top: 220px; }
+            .notice-bar { flex-direction: column; align-items: stretch; padding: 10px 10px; gap: 5px; }
             .notice-badge { display: none; }
+            .notice-link { text-align: center; }
+            .hero-tag-left{ top: 100px; left: 10px }
+			.hero-tag-right{ top: 100px; right: 10px }
+			.hero-tag { padding: 5px 15px; font-size: 0.9rem; }
+            .section-header h2{ font-size: 1.8rem; }
+            .chat-box { width: 90vw; right: 5vw; height: 400px; bottom: 80px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="theme-toggle" id="themeToggle">
-        <i class="fas fa-moon"></i>
-    </div>
+    <div class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></div>
 
+    <!-- Notice Bar -->
     <div class="notice-bar">
-        <div class="notice-badge"><i class="fas fa-bullhorn"></i> নোটিশ বোর্ড</div>
+        <div class="notice-badge">
+            <i class="fas fa-bullhorn"></i> নোটিশ বোর্ড
+        </div>
         <div class="notice-content">
-            <div class="notice-marquee" id="notice-slider"><span>লোড হচ্ছে...</span></div>
+            <div class="notice-marquee" id="notice-slider">
+                <span>লোড হচ্ছে...</span>
+            </div>
         </div>
         <a href="notices.html" class="notice-link">সকল নোটিশ <i class="fas fa-arrow-right"></i></a>
     </div>
 
+    <!-- Hero Section -->
     <header>
-        <div class="shape s1"></div><div class="shape s2"></div>
+        <div class="shape s1"></div>
+        <div class="shape s2"></div>
+        <div class="shape s3"></div>
+		<div class="hero-tags">
+			<div class="hero-tag hero-tag-left">এসো নবীন দলে দলে</div>
+			<div class="hero-tag hero-tag-right">ভালো ছেলেদের সংঘ তলে</div>
+		</div>
         <div class="hero-container">
             <h1 class="hero-title">দুষ্টু নারী বিবর্জিত সংগঠন</h1>
             <div class="hero-info-grid">
                 <div class="info-card">
-                    <h3><i class="fas fa-bullseye"></i> লক্ষ্য ও উদ্দেশ্য</h3>
-                    <p>প্রেম ও দুষ্টু নারীর আসক্তি মুক্ত চরিত্রবান ছেলেদের শেষ আশ্রয়স্থল। আমরা একতা ও সততার সাথে এগিয়ে চলি।</p>
+                    <h3><i class="fas fa-bullseye"></i> আমাদের লক্ষ্য</h3>
+                    <p>প্রেম দুষ্টু নারীর আসক্তি মুক্ত চিরতরুণ চরিত্রবান ছেলেদের শেষ আশ্রয়স্থল। এখানে আমরা একতা ও সততার সাথে এগিয়ে চলি।</p>
                 </div>
                 <div class="info-card">
-                    <h3><i class="fas fa-headset"></i> যোগাযোগ</h3>
-                    <p>অফিস: ২৮/এ, সাভার বাজার, ঢাকা-১৩৪০<br>ফোন: ০২-২৪০৬৯৯৯০১৬৪</p>
+                    <h3>যোগাযোগ <i class="fas fa-headset"></i></h3>
+                    <p><strong>অফিস:</strong> ২৮/এ, সাভার বাজার, ঢাকা-১৩৪০</p>
+                    <p><strong>ফোন:</strong> ০২-২৪০৬৯৯৯০১৬৪</p>
                 </div>
             </div>
         </div>
-        <div class="wave-container">
-            <svg class="waves-svg" viewBox="0 24 150 28" preserveAspectRatio="none">
-                <defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" /></defs>
+
+		<div class="wave-container">
+            <svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+                <defs>
+                    <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                </defs>
                 <g class="parallax">
                     <use xlink:href="#gentle-wave" x="48" y="0" />
                     <use xlink:href="#gentle-wave" x="48" y="3" />
@@ -169,47 +296,72 @@
         </div>
     </header>
 
+    <!-- Leaders Section -->
     <section class="leaders-section">
         <div class="section-header">
             <h2>আমাদের কর্ণধারগণ</h2>
-            <p>যাদের নেতৃত্বে আমরা এগিয়ে চলেছি</p>
+            <p>যাদের নেতৃত্বে আমরা এগিয়ে চলেছি দীপ্ত পথে</p>
         </div>
+
         <div class="card-grid" id="card-container">
-            <div style="grid-column: 1/-1; text-align: center;">লোড হচ্ছে...</div>
+            <div style="text-align: center; grid-column: 1/-1;">সদস্যদের তথ্য লোড হচ্ছে...</div>
         </div>
-        <div style="text-align: center; margin-top: 50px;">
-            <a href="members.html" class="btn-submit" style="text-decoration: none;">সকল সদস্য দেখুন</a>
+
+        <div class="btn-container">
+            <a href="members.html" class="btn-main allMembersButton">সকল সদস্য দেখুন <i class="fas fa-arrow-right"></i></a>
         </div>
     </section>
 
     <section class="contact-section">
-        <div class="section-header">
-            <h2>যোগাযোগ করুন</h2>
-            <p>আপনার মতামত বা অভিযোগ আমাদের জানান</p>
-        </div>
-        <div class="contact-container">
-            <form id="contact-form" class="contact-form">
-                <div class="form-group">
-                    <input type="text" id="contact-name" placeholder="আপনার নাম" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="contact-contact" placeholder="ফোন নম্বর বা ইমেইল" required>
-                </div>
-                <div class="form-group">
-                    <textarea id="contact-msg" rows="5" placeholder="আপনার বার্তা লিখুন..." required></textarea>
-                </div>
-                <button type="submit" class="btn-submit">বার্তা পাঠান <i class="fas fa-paper-plane"></i></button>
-            </form>
-        </div>
+        <h2 style="text-align: center; margin-bottom: 40px; font-size: 2rem; font-weight: 700;">মতামত জানান</h2>
+        <form id="contact-form" class="contact-form">
+            <input type="text" id="c-name" class="form-inp" placeholder="আপনার নাম" required>
+            <input type="text" id="c-contact" class="form-inp" placeholder="মোবাইল বা ইমেইল" required>
+            <textarea id="c-msg" class="form-inp" rows="4" placeholder="আপনার বার্তা লিখুন..." required></textarea>
+            <button type="submit" style="background: var(--primary-dark); color: white; padding: 18px; border: none; border-radius: 15px; font-weight: 700; cursor: pointer; width: 100%;">বার্তা পাঠান</button>
+        </form>
     </section>
 
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <button class="chat-btn" id="chatOpenBtn">
+            <i class="fas fa-comments"></i>
+            <div id="chatBadge" class="chat-badge" style="display:none">0</div>
+        </button>
+        <div class="chat-box" id="chatBox">
+            <div class="chat-header">
+                <div style="display: flex; flex-direction: column;">
+                    <span>লাইভ সাপোর্ট</span>
+                    <div class="admin-status-indicator">
+                        <div class="status-dot" id="adminStatusDot"></div>
+                        <span id="adminStatusText">অফলাইন</span>
+                    </div>
+                </div>
+                <button id="chatCloseBtn" style="background:none; border:none; color:white; cursor:pointer; font-size:1.5rem;">×</button>
+            </div>
+            
+            <div id="chatFormOverlay" class="chat-form-overlay" style="display:none">
+                <h3>শুরু করতে আপনার তথ্য দিন</h3>
+                <input type="text" id="chatNameInp" class="form-inp" placeholder="আপনার নাম" style="padding: 12px; margin-bottom: 12px;">
+                <input type="text" id="chatPhoneInp" class="form-inp" placeholder="আপনার ফোন নম্বর" style="padding: 12px; margin-bottom: 20px;">
+                <button id="chatStartBtn" style="background: var(--primary-dark); color: white; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%;">চ্যাট শুরু করুন</button>
+            </div>
+
+            <div class="chat-messages" id="chatMsgs"></div>
+            <div class="chat-input-area" id="chatInputArea" style="display: none;">
+                <input type="text" class="chat-input" id="chatInp" placeholder="বার্তা লিখুন...">
+                <button class="chat-send" id="chatSendBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
     <footer>
-        <p>&copy; ২০২৬ দুষ্ট নারী বিবর্জিত সংগঠন | সর্বস্বত্ব সংরক্ষিত</p>
+        <p>&copy; ২০২৪ দুষ্ট নারী বিবর্জিত সংগঠন | সর্বস্বত্ব সংরক্ষিত</p>
     </footer>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, getDocs, query, where, orderBy, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, query, where, orderBy, addDoc, onSnapshot, serverTimestamp, doc, updateDoc, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
               apiKey: "AIzaSyCDRUXONJs2uxqDmvPWGF7KLOg5VCMDVvw",
@@ -223,92 +375,223 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Dark Mode Logic
-        const toggle = document.getElementById('themeToggle');
-        const body = document.body;
-        if(localStorage.getItem('theme') === 'dark') {
-            body.classList.add('dark-mode');
-            toggle.innerHTML = '<i class="fas fa-sun"></i>';
-        }
-        toggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            if(body.classList.contains('dark-mode')) {
-                localStorage.setItem('theme', 'dark');
-                toggle.innerHTML = '<i class="fas fa-sun"></i>';
-            } else {
-                localStorage.setItem('theme', 'light');
-                toggle.innerHTML = '<i class="fas fa-moon"></i>';
-            }
-        });
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const applyTheme = (isDark) => {
+            document.body.classList.toggle('dark-mode', isDark);
+            themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        };
+        if(localStorage.getItem('theme') === 'dark') applyTheme(true);
+        themeToggle.onclick = () => {
+            const isDark = !document.body.classList.contains('dark-mode');
+            applyTheme(isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        };
 
         // Load Featured Members
         async function loadFeaturedMembers() {
-            const container = document.getElementById('card-container');
             try {
+                const container = document.getElementById('card-container');
                 const q = query(collection(db, 'members'), where('featured', '==', true));
-                const snap = await getDocs(q);
-                container.innerHTML = '';
-                if (snap.empty) { container.innerHTML = '<p style="text-align:center">কোনো ফিচার্ড সদস্য নেই।</p>'; return; }
                 
-                snap.forEach(doc => {
-                    const m = doc.data();
-                    const card = document.createElement('div');
-                    card.className = 'profile-card';
-                    card.innerHTML = `
-                        <div class="card-img-container">
-                            <img src="${m.imgSrc}" onerror="this.src='https://placehold.co/600x600?text=User'">
-                        </div>
-                        <div class="card-body">
-                            <div class="member-role">${m.designation}</div>
-                            <h3 class="member-name">${m.name}</h3>
-                        </div>
-                    `;
-                    container.appendChild(card);
+                onSnapshot(q, (snapshot) => {
+                    container.innerHTML = '';
+                    if (snapshot.empty) {
+                        container.innerHTML = '<div style="text-align: center; grid-column: 1/-1;"><p>কোনো ফিচার্ড সদস্য নেই।</p></div>';
+                        return;
+                    }
+                    snapshot.forEach((doc) => {
+                        const member = doc.data();
+                        container.appendChild(createMemberCard(member));
+                    });
+                }, (error) => {
+                    console.error("Members load error:", error);
+                    container.innerHTML = '<div style="text-align: center; grid-column: 1/-1;"><p class="text-red-500">ডাটা লোড করতে সমস্যা হচ্ছে।</p></div>';
                 });
             } catch (e) { console.error(e); }
+        }
+
+        function createMemberCard(member) {
+            const card = document.createElement('div');
+            card.className = 'profile-card';
+            let socialLinksHTML = '';
+            if (member.social) {
+                if (member.social.facebook) socialLinksHTML += `<a href="${member.social.facebook}" class="social-btn" target="_blank"><i class="fab fa-facebook-f"></i></a>`;
+                if (member.social.twitter) socialLinksHTML += `<a href="${member.social.twitter}" class="social-btn" target="_blank"><i class="fab fa-twitter"></i></a>`;
+                if (member.social.linkedin) socialLinksHTML += `<a href="${member.social.linkedin}" class="social-btn" target="_blank"><i class="fab fa-linkedin-in"></i></a>`;
+            }
+            const bioText = member.bio || 'সংগঠনের একজন নিবেদিত সদস্য।';
+            const charLimit = 200;
+            let bioHTML = bioText.length > charLimit ? `
+                <p class="member-bio">
+                    <span class="short-text">${bioText.substring(0, charLimit)}...</span>
+                    <span class="full-text" style="display:none;">${bioText}</span>
+                    <a class="read-more-btn">আরও পড়ুন</a>
+                </p>` : `<p class="member-bio">${bioText}</p>`;
+
+            card.innerHTML = `
+                <div class="card-img-container">
+                    <img src="${member.imgSrc}" onerror="this.src='https://placehold.co/600x600/2980b9/ffffff?text=${encodeURIComponent(member.name)}'" alt="${member.name}">
+                </div>
+                <div class="card-body">
+                    <div class="member-role">${member.designation}</div>
+                    <h3 class="member-name">${member.name}</h3>
+                    ${bioHTML}
+                    <div class="social-links">${socialLinksHTML}</div>
+                </div>`;
+            
+            const btn = card.querySelector('.read-more-btn');
+            if (btn) btn.onclick = (e) => {
+                e.preventDefault();
+                const short = card.querySelector('.short-text'), full = card.querySelector('.full-text');
+                const isHidden = full.style.display === 'none';
+                full.style.display = isHidden ? 'inline' : 'none';
+                short.style.display = isHidden ? 'none' : 'inline';
+                btn.textContent = isHidden ? 'সংক্ষিপ্ত করুন' : 'আরও পড়ুন';
+            };
+            return card;
         }
 
         // Load Notices
         async function loadNotices() {
-            const slider = document.getElementById('notice-slider');
             try {
+                const slider = document.getElementById('notice-slider');
                 const q = query(collection(db, 'notices'), orderBy('createdAt', 'desc'));
-                const snap = await getDocs(q);
-                if (!snap.empty) {
+                onSnapshot(q, (snapshot) => {
+                    if (snapshot.empty) { slider.innerHTML = '<span>কোনো নোটিশ নেই।</span>'; return; }
                     let html = '';
-                    snap.forEach(d => html += `<span style="margin-right: 50px;"><i class="fas fa-circle" style="font-size: 8px;"></i> ${d.data().title}</span>`);
+                    snapshot.forEach((doc) => {
+                        html += `<span><i class="fas fa-circle" style="font-size: 8px; vertical-align: middle; margin-right: 8px;"></i> ${doc.data().title}</span>`;
+                    });
                     slider.innerHTML = html + html;
-                } else { slider.innerHTML = '<span>কোনো নোটিশ নেই</span>'; }
+                }, (error) => {
+                    console.error("Notices load error:", error);
+                });
             } catch (e) { console.error(e); }
         }
 
         // Contact Form
-        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+        document.getElementById('contact-form').onsubmit = async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'পাঠানো হচ্ছে...';
-            btn.disabled = true;
-
+            const btn = e.target.querySelector('button'); btn.disabled = true;
             try {
                 await addDoc(collection(db, 'messages'), {
-                    name: document.getElementById('contact-name').value,
-                    contact: document.getElementById('contact-contact').value,
-                    message: document.getElementById('contact-msg').value,
-                    createdAt: new Date().toISOString()
+                    name: document.getElementById('c-name').value,
+                    contact: document.getElementById('c-contact').value,
+                    message: document.getElementById('c-msg').value,
+                    read: false, createdAt: new Date().toISOString()
                 });
-                alert('আপনার বার্তা পাঠানো হয়েছে!');
+                Swal.fire({ title: 'সফল!', text: 'বার্তা পাঠানো হয়েছে।', icon: 'success', background: 'var(--card-bg)', color: 'var(--text-dark)' });
                 e.target.reset();
-            } catch (error) {
-                alert('সমস্যা হয়েছে: ' + error.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
+            } catch (error) { Swal.fire('ত্রুটি', 'আবার চেষ্টা করুন।', 'error'); } finally { btn.disabled = false; }
+        };
 
-        loadFeaturedMembers();
-        loadNotices();
+        // --- Chat System Logic ---
+        const chatOpenBtn = document.getElementById('chatOpenBtn'), chatCloseBtn = document.getElementById('chatCloseBtn');
+        const chatBox = document.getElementById('chatBox'), chatMsgs = document.getElementById('chatMsgs');
+        const chatInp = document.getElementById('chatInp'), chatSendBtn = document.getElementById('chatSendBtn');
+        const chatFormOverlay = document.getElementById('chatFormOverlay'), chatStartBtn = document.getElementById('chatStartBtn');
+        const chatInputArea = document.getElementById('chatInputArea'), chatBadge = document.getElementById('chatBadge');
+        const adminStatusDot = document.getElementById('adminStatusDot'), adminStatusText = document.getElementById('adminStatusText');
+
+        let chatSessionId = localStorage.getItem('chat_session_id'), chatUnsubscribe = null;
+
+        // Admin Online Status
+        onSnapshot(doc(db, 'system', 'admin_status'), (snap) => {
+            if (snap.exists() && snap.data().status === 'online') {
+                adminStatusDot.classList.add('online');
+                adminStatusText.innerText = (snap.data().name || 'অ্যাডমিন') + ' অনলাইন';
+            } else {
+                adminStatusDot.classList.remove('online');
+                adminStatusText.innerText = 'অফলাইন';
+            }
+        }, (err) => console.error("Admin status error:", err));
+
+        chatOpenBtn.onclick = () => {
+            chatBox.style.display = 'flex'; chatOpenBtn.style.display = 'none';
+            chatBadge.style.display = 'none'; chatBadge.innerText = '0';
+            if (!chatSessionId) {
+                chatFormOverlay.style.display = 'flex'; chatInputArea.style.display = 'none';
+            } else {
+                chatFormOverlay.style.display = 'none'; chatInputArea.style.display = 'flex';
+                loadSupportChat(chatSessionId);
+            }
+        };
+
+        chatCloseBtn.onclick = () => {
+            chatBox.style.display = 'none'; chatOpenBtn.style.display = 'flex';
+            if (chatUnsubscribe) chatUnsubscribe();
+        };
+
+        chatStartBtn.onclick = async () => {
+            const name = document.getElementById('chatNameInp').value.trim();
+            const phone = document.getElementById('chatPhoneInp').value.trim();
+            if (!name || !phone) { Swal.fire('তথ্য দিন', 'নাম এবং ফোন নম্বর প্রয়োজন।', 'warning'); return; }
+            try {
+                const sessionRef = await addDoc(collection(db, 'support_sessions'), {
+                    userName: name, userPhone: phone, status: 'active',
+                    createdAt: serverTimestamp(), lastMessage: 'চ্যাট শুরু হয়েছে',
+                    lastMessageTime: serverTimestamp(), adminRead: false, userRead: true
+                });
+                chatSessionId = sessionRef.id;
+                localStorage.setItem('chat_session_id', chatSessionId);
+                chatFormOverlay.style.display = 'none'; chatInputArea.style.display = 'flex';
+                loadSupportChat(chatSessionId);
+            } catch (e) { Swal.fire('ত্রুটি', 'চ্যাট শুরু করা যায়নি।', 'error'); }
+        };
+
+        function loadSupportChat(sessionId) {
+            if (chatUnsubscribe) chatUnsubscribe();
+            try {
+                const q = query(collection(db, `support_sessions/${sessionId}/messages`), orderBy('time', 'asc'));
+                chatUnsubscribe = onSnapshot(q, (snap) => {
+                    chatMsgs.innerHTML = '';
+                    snap.forEach(d => {
+                        const m = d.data(), isMe = m.sender === 'user';
+                        const time = m.time?.toDate ? m.time.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
+                        chatMsgs.innerHTML += `
+                            <div class="msg-container ${isMe ? 'msg-align-right' : 'msg-align-left'}">
+                                <span class="msg-name">${isMe ? 'আপনি' : 'অ্যাডমিন'}</span>
+                                <div class="msg ${isMe ? 'msg-sent' : 'msg-received'}">
+                                    ${m.text}
+                                    <div class="msg-time" style="text-align: ${isMe ? 'right' : 'left'}">${time}</div>
+                                </div>
+                            </div>`;
+                    });
+                    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+                    if (chatBox.style.display === 'flex') updateDoc(doc(db, 'support_sessions', sessionId), { userRead: true });
+                }, (error) => console.error("Chat load error:", error));
+            } catch (e) { console.error(e); }
+        }
+
+        chatSendBtn.onclick = async () => {
+            const text = chatInp.value.trim();
+            if (!text || !chatSessionId) return;
+            chatInp.value = '';
+            try {
+                await addDoc(collection(db, `support_sessions/${chatSessionId}/messages`), { text: text, sender: 'user', time: serverTimestamp() });
+                await updateDoc(doc(db, 'support_sessions', chatSessionId), { lastMessage: text, lastMessageTime: serverTimestamp(), adminRead: false });
+            } catch (e) { console.error(e); }
+        };
+
+        chatInp.onkeypress = (e) => { if (e.key === 'Enter') chatSendBtn.click(); };
+
+        // Unread badge logic
+        if (chatSessionId) {
+            try {
+                onSnapshot(doc(db, 'support_sessions', chatSessionId), (snap) => {
+                    if (snap.exists() && !snap.data().userRead && chatBox.style.display !== 'flex') {
+                        chatBadge.style.display = 'flex';
+                        chatBadge.innerText = (parseInt(chatBadge.innerText) || 0) + 1;
+                    }
+                }, (err) => console.error("Badge error:", err));
+            } catch (e) { console.error(e); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFeaturedMembers();
+            loadNotices();
+        });
     </script>
 </body>
 </html>
